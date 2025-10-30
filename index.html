@@ -45,7 +45,7 @@
             border-bottom: 1px solid #333;
             margin-bottom: 20px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
         .game-title {
@@ -63,6 +63,7 @@
             width: 25px;
             height: 20px;
             position: relative;
+            z-index: 3;
         }
 
         .menu-line {
@@ -84,6 +85,41 @@
 
         .menu-icon.active .menu-line:nth-child(3) {
             transform: rotate(-45deg) translate(6px, -6px);
+        }
+
+        /* Боковое меню */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -25%;
+            width: 25%;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            border-left: 1px solid #333;
+            transition: right 0.3s ease;
+            z-index: 1;
+            padding: 80px 20px 20px 20px;
+        }
+
+        .side-menu.active {
+            right: 0;
+        }
+
+        .menu-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu-item {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .menu-item:hover {
+            color: #00ff00;
         }
 
         .content {
@@ -171,6 +207,18 @@
 <body>
     <div class="particles" id="particles"></div>
     
+    <!-- Боковое меню -->
+    <div class="side-menu" id="sideMenu">
+        <div class="menu-content">
+            <div class="menu-item">Главная</div>
+            <div class="menu-item">О игре</div>
+            <div class="menu-item">Сборки</div>
+            <div class="menu-item">Галерея</div>
+            <div class="menu-item">Форум</div>
+            <div class="menu-item">Поддержка</div>
+        </div>
+    </div>
+    
     <div class="header">
         <div class="game-title">PATHFINDER[HORROR]</div>
         <div class="menu-icon" id="menuIcon">
@@ -218,8 +266,11 @@
 
         // Анимация меню
         const menuIcon = document.getElementById('menuIcon');
+        const sideMenu = document.getElementById('sideMenu');
+        
         menuIcon.addEventListener('click', function() {
             this.classList.toggle('active');
+            sideMenu.classList.toggle('active');
         });
 
         // Запуск при загрузке страницы
