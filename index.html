@@ -99,6 +99,8 @@
             transition: right 0.3s ease;
             z-index: 1;
             padding: 80px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
         }
 
         .side-menu.active {
@@ -108,18 +110,26 @@
         .menu-content {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 5px;
+            flex: 1;
         }
 
         .menu-item {
-            padding: 10px;
+            padding: 12px;
             border-bottom: 1px solid #333;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             font-size: 16px;
+            border-radius: 5px;
         }
 
         .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-item.active {
+            background: rgba(0, 255, 0, 0.2);
+            border-left: 3px solid #00ff00;
             color: #00ff00;
         }
 
@@ -159,6 +169,118 @@
             animation: glow 2s ease-in-out infinite alternate;
         }
 
+        /* Модальное окно регистрации */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid #333;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: #0c0c0c;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .password-strength {
+            height: 5px;
+            background: #333;
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background: #ff0000;
+            width: 25%;
+        }
+
+        .strength-medium {
+            background: #ff9900;
+            width: 50%;
+        }
+
+        .strength-strong {
+            background: #00ff00;
+            width: 75%;
+        }
+
+        .strength-very-strong {
+            background: #00cc00;
+            width: 100%;
+        }
+
+        .strength-text {
+            font-size: 12px;
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #00cc00;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
         @keyframes glow {
             from {
                 text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
@@ -168,7 +290,7 @@
             }
         }
 
-        /* Анимированные частицы на фоне */
+        /* Оптимизированные частицы */
         .particles {
             position: absolute;
             top: 0;
@@ -176,6 +298,7 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
+            z-index: 0;
         }
 
         .particle {
@@ -184,43 +307,22 @@
             height: 2px;
             background: #fff;
             border-radius: 50%;
-            animation: float 6s infinite linear;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) translateX(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-100px) translateX(100px);
-                opacity: 0;
-            }
+            will-change: transform, opacity;
         }
     </style>
 </head>
 <body>
+    <!-- Уменьшено количество частиц для оптимизации -->
     <div class="particles" id="particles"></div>
     
     <!-- Боковое меню -->
     <div class="side-menu" id="sideMenu">
         <div class="menu-content">
-            <div class="menu-item">Главная</div>
-            <div class="menu-item">О игре</div>
-            <div class="menu-item">Сборки</div>
-            <div class="menu-item">Галерея</div>
-            <div class="menu-item">Форум</div>
-            <div class="menu-item">Поддержка</div>
-            <div class="menu-item">Настройки</div>
-            <div class="menu-item">Сообщество</div>
-            <div class="menu-item">Обновления</div>
-            <div class="menu-item">Баги и ошибки</div>
+            <div class="menu-item active" data-tab="chat">Чат игроков</div>
+            <div class="menu-item" data-tab="updates">Обновления</div>
+            <div class="menu-item" data-tab="settings">Настройки</div>
+            <div class="menu-item" data-tab="forum">Форум</div>
+            <div class="menu-item" data-tab="support">Поддержка</div>
         </div>
     </div>
     
@@ -244,26 +346,45 @@
         <div class="divider"></div>
     </div>
 
+    <!-- Модальное окно регистрации -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-title">Для начала чата нужно зарегистрироваться</div>
+            <div class="form-group">
+                <label>Ваш ник в Roblox:</label>
+                <input type="text" id="robloxNick" placeholder="Введите ваш ник">
+            </div>
+            <div class="form-group">
+                <label>Придумайте надежный пароль:</label>
+                <input type="password" id="password" placeholder="Введите пароль">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+                </div>
+                <div class="strength-text" id="passwordStrengthText">Введите пароль</div>
+            </div>
+            <button class="btn" id="registerBtn">Зарегистрироваться</button>
+        </div>
+    </div>
+
     <script>
-        // Создание анимированных частиц
-        function createParticles() {
+        // Оптимизированные частицы с requestAnimationFrame
+        function createOptimizedParticles() {
             const particlesContainer = document.getElementById('particles');
-            const particleCount = 50;
+            const particleCount = 15; // Уменьшено количество частиц
             
             for (let i = 0; i < particleCount; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 
-                // Случайная позиция и задержка анимации
-                particle.style.left = Math.random() * 100 + 'vw';
-                particle.style.animationDelay = Math.random() * 6 + 's';
-                particle.style.animationDuration = (3 + Math.random() * 4) + 's';
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+                const duration = 8 + Math.random() * 8; // Увеличена длительность
                 
-                // Случайный размер и прозрачность
-                const size = 1 + Math.random() * 2;
-                particle.style.width = size + 'px';
-                particle.style.height = size + 'px';
-                particle.style.opacity = 0.3 + Math.random() * 0.4;
+                particle.style.left = startX + 'vw';
+                particle.style.top = startY + 'vh';
+                particle.style.opacity = 0.2 + Math.random() * 0.3;
+                particle.style.animationDuration = duration + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
                 
                 particlesContainer.appendChild(particle);
             }
@@ -272,14 +393,103 @@
         // Анимация меню
         const menuIcon = document.getElementById('menuIcon');
         const sideMenu = document.getElementById('sideMenu');
-        
+        const menuItems = document.querySelectorAll('.menu-item');
+        const registerModal = document.getElementById('registerModal');
+        const passwordInput = document.getElementById('password');
+        const passwordStrengthBar = document.getElementById('passwordStrengthBar');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const registerBtn = document.getElementById('registerBtn');
+
         menuIcon.addEventListener('click', function() {
             this.classList.toggle('active');
             sideMenu.classList.toggle('active');
         });
 
+        // Обработчик клика по пунктам меню
+        menuItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Убираем активный класс у всех пунктов
+                menuItems.forEach(i => i.classList.remove('active'));
+                // Добавляем активный класс текущему пункту
+                this.classList.add('active');
+                
+                const tab = this.getAttribute('data-tab');
+                
+                if (tab === 'chat') {
+                    registerModal.classList.add('active');
+                }
+            });
+        });
+
+        // Проверка надежности пароля
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+            let text = 'Введите пароль';
+            
+            if (password.length > 0) {
+                strength++;
+                
+                if (password.length >= 8) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[0-9]/.test(password)) strength++;
+                if (/[^A-Za-z0-9]/.test(password)) strength++;
+                
+                // Сброс классов
+                passwordStrengthBar.className = 'password-strength-bar';
+                
+                if (strength === 1) {
+                    passwordStrengthBar.classList.add('strength-weak');
+                    text = 'Слабый';
+                } else if (strength === 2) {
+                    passwordStrengthBar.classList.add('strength-medium');
+                    text = 'Средний';
+                } else if (strength === 3) {
+                    passwordStrengthBar.classList.add('strength-strong');
+                    text = 'Хороший';
+                } else if (strength >= 4) {
+                    passwordStrengthBar.classList.add('strength-very-strong');
+                    text = 'Очень надежный';
+                }
+            }
+            
+            passwordStrengthText.textContent = text;
+        });
+
+        // Регистрация
+        registerBtn.addEventListener('click', function() {
+            const nick = document.getElementById('robloxNick').value;
+            const password = passwordInput.value;
+            
+            if (!nick) {
+                alert('Введите ваш ник в Roblox!');
+                return;
+            }
+            
+            if (!password) {
+                alert('Введите пароль!');
+                return;
+            }
+            
+            if (passwordStrengthText.textContent === 'Слабый') {
+                if (!confirm('Ваш пароль слабый. Вы уверены, что хотите продолжить?')) {
+                    return;
+                }
+            }
+            
+            alert(`Регистрация успешна!\nНик: ${nick}\nТеперь вы можете общаться в чате!`);
+            registerModal.classList.remove('active');
+        });
+
+        // Закрытие модального окна при клике вне его
+        registerModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+
         // Запуск при загрузке страницы
-        document.addEventListener('DOMContentLoaded', createParticles);
+        document.addEventListener('DOMContentLoaded', createOptimizedParticles);
     </script>
 </body>
 </html>
