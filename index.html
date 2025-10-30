@@ -263,6 +263,17 @@
             text-align: right;
         }
 
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .remember-me input {
+            width: auto;
+        }
+
         .btn {
             padding: 10px 20px;
             background: #00ff00;
@@ -279,6 +290,67 @@
         .btn:hover {
             background: #00cc00;
             box-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Чат */
+        .chat-container {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            max-height: 300px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .message .nick {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            background: #0c0c0c;
+            border: 1px solid #333;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         @keyframes glow {
@@ -320,9 +392,8 @@
         <div class="menu-content">
             <div class="menu-item active" data-tab="chat">Чат игроков</div>
             <div class="menu-item" data-tab="updates">Обновления</div>
+            <div class="menu-item" data-tab="promocode">Промокод</div>
             <div class="menu-item" data-tab="settings">Настройки</div>
-            <div class="menu-item" data-tab="forum">Форум</div>
-            <div class="menu-item" data-tab="support">Поддержка</div>
         </div>
     </div>
     
@@ -344,6 +415,20 @@
         </div>
         
         <div class="divider"></div>
+
+        <!-- Чат -->
+        <div class="chat-container" id="chatContainer">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message"><span class="nick">System:</span> Добро пожаловать в чат!</div>
+                <div class="message"><span class="nick">GhostHunter:</span> Кто-то играл в новое обновление?</div>
+                <div class="message"><span class="nick">DarkSoul:</span> Да, там новые локации просто ужас!</div>
+                <div class="message"><span class="nick">ShadowWalker:</span> Жду не дождусь когда добавят кооператив</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="messageInput" placeholder="Введите сообщение...">
+                <button id="sendMessage">Отправить</button>
+            </div>
+        </div>
     </div>
 
     <!-- Модальное окно регистрации -->
@@ -361,6 +446,14 @@
                     <div class="password-strength-bar" id="passwordStrengthBar"></div>
                 </div>
                 <div class="strength-text" id="passwordStrengthText">Введите пароль</div>
+            </div>
+            <div class="form-group">
+                <label>Промокод (необязательно):</label>
+                <input type="text" id="promocode" placeholder="Введите промокод">
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe">Запомнить меня</label>
             </div>
             <button class="btn" id="registerBtn">Зарегистрироваться</button>
         </div>
@@ -395,10 +488,16 @@
         const sideMenu = document.getElementById('sideMenu');
         const menuItems = document.querySelectorAll('.menu-item');
         const registerModal = document.getElementById('registerModal');
+        const chatContainer = document.getElementById('chatContainer');
         const passwordInput = document.getElementById('password');
         const passwordStrengthBar = document.getElementById('passwordStrengthBar');
         const passwordStrengthText = document.getElementById('passwordStrengthText');
         const registerBtn = document.getElementById('registerBtn');
+        const messageInput = document.getElementById('messageInput');
+        const sendMessageBtn = document.getElementById('sendMessage');
+        const chatMessages = document.getElementById('chatMessages');
+
+        let currentUser = null;
 
         menuIcon.addEventListener('click', function() {
             this.classList.toggle('active');
@@ -416,7 +515,13 @@
                 const tab = this.getAttribute('data-tab');
                 
                 if (tab === 'chat') {
-                    registerModal.classList.add('active');
+                    if (!currentUser) {
+                        registerModal.classList.add('active');
+                    } else {
+                        chatContainer.classList.add('active');
+                    }
+                } else if (tab === 'promocode') {
+                    alert('Введите промокод в поле при регистрации для получения бонусов!');
                 }
             });
         });
@@ -460,6 +565,8 @@
         registerBtn.addEventListener('click', function() {
             const nick = document.getElementById('robloxNick').value;
             const password = passwordInput.value;
+            const promocode = document.getElementById('promocode').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
             
             if (!nick) {
                 alert('Введите ваш ник в Roblox!');
@@ -476,15 +583,87 @@
                     return;
                 }
             }
+
+            // Проверка промокода
+            if (promocode) {
+                if (promocode.toUpperCase() === 'BETA2024') {
+                    alert('Промокод активирован! Вы получили бонусные очки!');
+                } else {
+                    alert('Неверный промокод!');
+                }
+            }
+            
+            currentUser = nick;
+            
+            if (rememberMe) {
+                localStorage.setItem('pathfinderUser', nick);
+                alert('Данные сохранены!');
+            }
             
             alert(`Регистрация успешна!\nНик: ${nick}\nТеперь вы можете общаться в чате!`);
             registerModal.classList.remove('active');
+            chatContainer.classList.add('active');
+            
+            // Добавляем приветственное сообщение
+            addMessage('System', `Добро пожаловать в чат, ${nick}!`);
         });
+
+        // Отправка сообщения
+        sendMessageBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            if (!currentUser) {
+                alert('Сначала зарегистрируйтесь!');
+                return;
+            }
+            
+            addMessage(currentUser, message);
+            messageInput.value = '';
+            
+            // Автоматический ответ (имитация других пользователей)
+            setTimeout(() => {
+                const responses = [
+                    'Интересно!',
+                    'Согласен',
+                    'Хорошая мысль',
+                    'Попробуй еще раз',
+                    'У меня так же'
+                ];
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                addMessage('RandomPlayer', randomResponse);
+            }, 1000);
+        }
+
+        function addMessage(nick, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<span class="nick">${nick}:</span> ${text}`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
         // Закрытие модального окна при клике вне его
         registerModal.addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.remove('active');
+            }
+        });
+
+        // Проверка сохраненного пользователя
+        window.addEventListener('load', function() {
+            const savedUser = localStorage.getItem('pathfinderUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                chatContainer.classList.add('active');
+                addMessage('System', `С возвращением, ${savedUser}!`);
             }
         });
 
