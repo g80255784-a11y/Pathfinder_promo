@@ -409,6 +409,7 @@
     <!-- Боковое меню -->
     <div class="side-menu" id="sideMenu">
         <div class="menu-content">
+            <div class="menu-item" data-tab="welcome">Приветствие</div>
             <div class="menu-item active" data-tab="chat">Чат игроков</div>
             <div class="menu-item" data-tab="updates">Обновления</div>
             <div class="menu-item" data-tab="promocode">Промокод</div>
@@ -519,6 +520,33 @@
         const imageUpload = document.getElementById('imageUpload');
 
         let currentUser = null;
+        let chatHistory = [];
+
+        // Загрузка истории чата из localStorage
+        function loadChatHistory() {
+            const savedChat = localStorage.getItem('pathfinderChat');
+            if (savedChat) {
+                chatHistory = JSON.parse(savedChat);
+                renderChatHistory();
+            }
+        }
+
+        // Сохранение истории чата в localStorage
+        function saveChatHistory() {
+            localStorage.setItem('pathfinderChat', JSON.stringify(chatHistory));
+        }
+
+        // Отрисовка истории чата
+        function renderChatHistory() {
+            chatMessages.innerHTML = '';
+            chatHistory.forEach(msg => {
+                if (msg.type === 'text') {
+                    addMessageToDOM(msg.nick, msg.content);
+                } else if (msg.type === 'image') {
+                    addImageMessageToDOM(msg.nick, msg.content);
+                }
+            });
+        }
 
         menuIcon.addEventListener('click', function() {
             this.classList.toggle('active');
@@ -535,7 +563,9 @@
                 
                 const tab = this.getAttribute('data-tab');
                 
-                if (tab === 'chat') {
+                if (tab === 'welcome') {
+                    showWelcome();
+                } else if (tab === 'chat') {
                     if (!currentUser) {
                         registerModal.classList.add('active');
                     } else {
@@ -546,6 +576,11 @@
                 }
             });
         });
+
+        function showWelcome() {
+            chatContainer.classList.remove('active');
+            welcomeSection.style.display = 'block';
+        }
 
         function showChat() {
             welcomeSection.style.display = 'none';
@@ -636,62 +671,7 @@
 
         // Отправка сообщения
         sendMessageBtn.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Загрузка изображения
-        imageUpload.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                if (!currentUser) {
-                    alert('Сначала зарегистрируйтесь!');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    addImageMessage(currentUser, event.target.result);
-                };
-                reader.readAsDataURL(file);
-                
-                // Сброс input
-                imageUpload.value = '';
-            }
-        });
-
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            
-            if (!currentUser) {
-                alert('Сначала зарегистрируйтесь!');
-                return;
-            }
-            
-            addMessage(currentUser, message);
-            messageInput.value = '';
-        }
-
-        function addMessage(nick, text) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            messageDiv.innerHTML = `<span class="nick">${nick}:</span> ${text}`;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function addImageMessage(nick, imageData) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'message';
-            messageDiv.innerHTML = `
-                <span class="nick">${nick}:</span> 
-                <img src="${imageData}" class="message-image" alt="Изображение">
-            `;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // Закрытие модального окна при клике вне его
@@ -701,7 +681,7 @@
             }
         });
 
-        // Проверка сохраненного пользователя
+        // Проверка сохраненного пользователя и загрузка истории
         window.addEventListener('load', function() {
             const savedUser = localStorage.getItem('pathfinderUser');
             if (savedUser) {
@@ -709,6 +689,9 @@
                 showChat();
                 addMessage('System', `С возвращением, ${savedUser}!`);
             }
+            
+            // Загружаем историю чата
+            loadChatHistory();
         });
 
         // Запуск при загрузке страницы
