@@ -548,6 +548,7 @@
             });
         }
 
+        // ФИКС: Добавляем обработчик для трех полосок
         menuIcon.addEventListener('click', function() {
             this.classList.toggle('active');
             sideMenu.classList.toggle('active');
@@ -574,6 +575,10 @@
                 } else if (tab === 'promocode') {
                     alert('Введите промокод в поле при регистрации для получения бонусов!');
                 }
+                
+                // Закрываем меню после выбора пункта
+                menuIcon.classList.remove('active');
+                sideMenu.classList.remove('active');
             });
         });
 
