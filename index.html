@@ -671,7 +671,92 @@
 
         // Отправка сообщения
         sendMessageBtn.addEventListener('click', sendMessage);
-chatMessages.scrollTop = chatMessages.scrollHeight;
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Загрузка изображения
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!currentUser) {
+                    alert('Сначала зарегистрируйтесь!');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addImageMessage(currentUser, event.target.result);
+                };
+                reader.readAsDataURL(file);
+                
+                // Сброс input
+                imageUpload.value = '';
+            }
+        });
+
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            if (!currentUser) {
+                alert('Сначала зарегистрируйтесь!');
+                return;
+            }
+            
+            addMessage(currentUser, message);
+            messageInput.value = '';
+        }
+
+        function addMessage(nick, text) {
+            // Сохраняем сообщение в историю
+            const messageData = {
+                type: 'text',
+                nick: nick,
+                content: text,
+                timestamp: new Date().toISOString()
+            };
+            chatHistory.push(messageData);
+            saveChatHistory();
+            
+            // Добавляем в DOM
+            addMessageToDOM(nick, text);
+        }
+
+        function addMessageToDOM(nick, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `<span class="nick">${nick}:</span> ${text}`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addImageMessage(nick, imageData) {
+            // Сохраняем изображение в историю
+            const messageData = {
+                type: 'image',
+                nick: nick,
+                content: imageData,
+                timestamp: new Date().toISOString()
+            };
+            chatHistory.push(messageData);
+            saveChatHistory();
+            
+            // Добавляем в DOM
+            addImageMessageToDOM(nick, imageData);
+        }
+
+        function addImageMessageToDOM(nick, imageData) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <span class="nick">${nick}:</span> 
+                <img src="${imageData}" class="message-image" alt="Изображение">
+            `;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // Закрытие модального окна при клике вне его
