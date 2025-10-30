@@ -141,32 +141,23 @@
             z-index: 1;
         }
 
-        .divider {
-            width: 100%;
-            height: 1px;
-            background-color: #333;
-            margin: 15px 0;
+        .welcome-section {
+            text-align: center;
+            padding: 40px 20px;
         }
 
-        .build-container {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            padding: 10px 0;
-        }
-
-        .build-name {
-            font-size: 32px;
-            font-weight: bold;
+        .welcome-text {
+            font-size: 24px;
+            margin-bottom: 30px;
             color: #fff;
         }
 
-        .build-status {
-            font-size: 14px;
-            color: #00ff00;
-            font-weight: 500;
-            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
-            animation: glow 2s ease-in-out infinite alternate;
+        .welcome-image {
+            max-width: 300px;
+            border-radius: 10px;
+            margin: 0 auto;
+            display: block;
+            border: 2px solid #333;
         }
 
         /* Модальное окно регистрации */
@@ -313,7 +304,11 @@
             padding: 10px;
             background: rgba(0, 0, 0, 0.2);
             border-radius: 5px;
-            max-height: 300px;
+            max-height: 400px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .message {
@@ -329,9 +324,20 @@
             font-weight: bold;
         }
 
+        .message-image {
+            max-width: 200px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            margin-top: auto;
+        }
+
         .chat-input {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .chat-input input {
@@ -343,6 +349,28 @@
             color: #fff;
         }
 
+        .file-upload {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            padding: 10px 15px;
+            background: #333;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            background: #444;
+        }
+
         .chat-input button {
             padding: 10px 20px;
             background: #00ff00;
@@ -351,15 +379,6 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-            }
-            to {
-                text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 30px #00ff00;
-            }
         }
 
         /* Оптимизированные частицы */
@@ -407,26 +426,26 @@
     </div>
     
     <div class="content">
-        <div class="divider"></div>
-        
-        <div class="build-container">
-            <div class="build-name">Beta</div>
-            <div class="build-status">активен</div>
+        <!-- Приветственная секция -->
+        <div class="welcome-section" id="welcomeSection">
+            <div class="welcome-text">Привет, спасибо что зашел на сайт</div>
+            <img src="https://raw.githubusercontent.com/yourusername/yourrepo/main/Scr.png" alt="PATHFINDER[HORROR]" class="welcome-image" onerror="this.style.display='none'">
         </div>
-        
-        <div class="divider"></div>
 
         <!-- Чат -->
         <div class="chat-container" id="chatContainer">
             <div class="chat-messages" id="chatMessages">
-                <div class="message"><span class="nick">System:</span> Добро пожаловать в чат!</div>
-                <div class="message"><span class="nick">GhostHunter:</span> Кто-то играл в новое обновление?</div>
-                <div class="message"><span class="nick">DarkSoul:</span> Да, там новые локации просто ужас!</div>
-                <div class="message"><span class="nick">ShadowWalker:</span> Жду не дождусь когда добавят кооператив</div>
+                <!-- Сообщения будут добавляться здесь -->
             </div>
-            <div class="chat-input">
-                <input type="text" id="messageInput" placeholder="Введите сообщение...">
-                <button id="sendMessage">Отправить</button>
+            <div class="chat-input-container">
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Введите сообщение...">
+                    <div class="file-upload">
+                        <input type="file" id="imageUpload" accept="image/*">
+                        <label for="imageUpload" class="file-upload-label">📷</label>
+                    </div>
+                    <button id="sendMessage">Отправить</button>
+                </div>
             </div>
         </div>
     </div>
@@ -489,6 +508,7 @@
         const menuItems = document.querySelectorAll('.menu-item');
         const registerModal = document.getElementById('registerModal');
         const chatContainer = document.getElementById('chatContainer');
+        const welcomeSection = document.getElementById('welcomeSection');
         const passwordInput = document.getElementById('password');
         const passwordStrengthBar = document.getElementById('passwordStrengthBar');
         const passwordStrengthText = document.getElementById('passwordStrengthText');
@@ -496,6 +516,7 @@
         const messageInput = document.getElementById('messageInput');
         const sendMessageBtn = document.getElementById('sendMessage');
         const chatMessages = document.getElementById('chatMessages');
+        const imageUpload = document.getElementById('imageUpload');
 
         let currentUser = null;
 
@@ -518,13 +539,18 @@
                     if (!currentUser) {
                         registerModal.classList.add('active');
                     } else {
-                        chatContainer.classList.add('active');
+                        showChat();
                     }
                 } else if (tab === 'promocode') {
                     alert('Введите промокод в поле при регистрации для получения бонусов!');
                 }
             });
         });
+
+        function showChat() {
+            welcomeSection.style.display = 'none';
+            chatContainer.classList.add('active');
+        }
 
         // Проверка надежности пароля
         passwordInput.addEventListener('input', function() {
@@ -602,7 +628,7 @@
             
             alert(`Регистрация успешна!\nНик: ${nick}\nТеперь вы можете общаться в чате!`);
             registerModal.classList.remove('active');
-            chatContainer.classList.add('active');
+            showChat();
             
             // Добавляем приветственное сообщение
             addMessage('System', `Добро пожаловать в чат, ${nick}!`);
@@ -613,6 +639,26 @@
         messageInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
+            }
+        });
+
+        // Загрузка изображения
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!currentUser) {
+                    alert('Сначала зарегистрируйтесь!');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addImageMessage(currentUser, event.target.result);
+                };
+                reader.readAsDataURL(file);
+                
+                // Сброс input
+                imageUpload.value = '';
             }
         });
 
@@ -627,25 +673,23 @@
             
             addMessage(currentUser, message);
             messageInput.value = '';
-            
-            // Автоматический ответ (имитация других пользователей)
-            setTimeout(() => {
-                const responses = [
-                    'Интересно!',
-                    'Согласен',
-                    'Хорошая мысль',
-                    'Попробуй еще раз',
-                    'У меня так же'
-                ];
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                addMessage('RandomPlayer', randomResponse);
-            }, 1000);
         }
 
         function addMessage(nick, text) {
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message';
             messageDiv.innerHTML = `<span class="nick">${nick}:</span> ${text}`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addImageMessage(nick, imageData) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message';
+            messageDiv.innerHTML = `
+                <span class="nick">${nick}:</span> 
+                <img src="${imageData}" class="message-image" alt="Изображение">
+            `;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -662,7 +706,7 @@
             const savedUser = localStorage.getItem('pathfinderUser');
             if (savedUser) {
                 currentUser = savedUser;
-                chatContainer.classList.add('active');
+                showChat();
                 addMessage('System', `С возвращением, ${savedUser}!`);
             }
         });
