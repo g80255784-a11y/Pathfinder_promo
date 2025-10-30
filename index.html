@@ -52,7 +52,6 @@
             font-size: 24px;
             font-weight: bold;
             letter-spacing: 1px;
-            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
             color: #fff;
         }
 
@@ -61,13 +60,30 @@
             flex-direction: column;
             gap: 4px;
             cursor: pointer;
+            width: 25px;
+            height: 20px;
+            position: relative;
         }
 
         .menu-line {
-            width: 25px;
+            width: 100%;
             height: 3px;
             background-color: #e0e0e0;
             border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* Анимация превращения в крест */
+        .menu-icon.active .menu-line:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .menu-icon.active .menu-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-icon.active .menu-line:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
         }
 
         .content {
@@ -96,7 +112,6 @@
             font-size: 32px;
             font-weight: bold;
             color: #fff;
-            text-shadow: 0 0 5px #ffffff;
         }
 
         .build-status {
@@ -158,7 +173,7 @@
     
     <div class="header">
         <div class="game-title">PATHFINDER[HORROR]</div>
-        <div class="menu-icon">
+        <div class="menu-icon" id="menuIcon">
             <div class="menu-line"></div>
             <div class="menu-line"></div>
             <div class="menu-line"></div>
@@ -200,6 +215,12 @@
                 particlesContainer.appendChild(particle);
             }
         }
+
+        // Анимация меню
+        const menuIcon = document.getElementById('menuIcon');
+        menuIcon.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
 
         // Запуск при загрузке страницы
         document.addEventListener('DOMContentLoaded', createParticles);
